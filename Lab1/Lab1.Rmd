@@ -26,4 +26,3 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 ```{r reading_csv}
 gss <- read_csv("../gss2014.csv")
 ```
-
