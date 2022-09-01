@@ -1657,7 +1657,7 @@ press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
 editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not
 run any R code chunks. Instead, the output of the chunk when it was last
 run in the editor is displayed.</p>
-<pre class="r"><code>imported_csv&lt;-read_csv(&quot;gss2014.csv&quot;)</code></pre>
+<pre class="r"><code>gss &lt;- read_csv(&quot;gss2014.csv&quot;)</code></pre>
 <pre><code>## Rows: 2538 Columns: 4
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -1666,6 +1666,12 @@ run in the editor is displayed.</p>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>head(gss)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["age"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["year"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["childs"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["zodiac"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"53","2":"2014","3":"0","4":"virgo"},{"1":"26","2":"2014","3":"0","4":"virgo"},{"1":"59","2":"2014","3":"1","4":"gemini"},{"1":"56","2":"2014","3":"2","4":"scorpio"},{"1":"74","2":"2014","3":"3","4":"sagittarius"},{"1":"56","2":"2014","3":"1","4":"scorpio"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 
 
 
