@@ -1,6 +1,7 @@
 ---
 title: "A Notebook for Data Methods Class Fall '22 (importing a file)"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
