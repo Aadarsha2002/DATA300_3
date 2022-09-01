@@ -27,3 +27,19 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 gss <- read_csv("gss2014.csv")
 head(gss)
 ```
+
+```{r check-class-age}
+class(gss$age)
+```
+
+```{r check-class-year}
+class(gss$year)
+```
+
+```{r check-class-childs}
+class(gss$childs)
+```
+
+```{r check-class-zodiac}
+class(gss$zodiac)
+```
