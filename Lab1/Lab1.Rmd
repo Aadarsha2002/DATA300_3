@@ -45,6 +45,6 @@ class(gss$zodiac)
 ```
 
 ```{r create-variable}
-gss$can_drink <- if_else(gss$age >= 21, "yes", "no")
+gss$can_drink <- if_else(gss$age >= 21, 1, 0)
 gss
 ```
