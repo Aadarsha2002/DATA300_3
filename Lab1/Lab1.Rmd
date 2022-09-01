@@ -1,5 +1,5 @@
 ---
-title: "An Example Notebook for Data Methods Class Fall '22"
+title: "A Notebook for Data Methods Class Fall '22 (importing a file)"
 output:
   html_document:
     df_print: paged
