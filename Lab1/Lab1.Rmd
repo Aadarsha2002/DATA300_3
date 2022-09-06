@@ -49,3 +49,7 @@ class(gss$zodiac)
 gss$can_drink <- if_else(gss$age >= 21, 1, 0)
 gss
 ```
+
+``` {r select}
+?select
+```
