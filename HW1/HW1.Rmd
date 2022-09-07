@@ -24,7 +24,7 @@ library("tidyverse")
 
 # 2. Import Data
 
-Import protest_data.csv as an object in R. Print the first few rows of the dataset using the head() function.
+Import *protest_data.csv* as an object in R. Print the first few rows of the dataset using the `head()` function.
 
 ``` {r import-data}
 protest_data <- read_csv("protest_data.csv")
@@ -41,4 +41,32 @@ head(protest_data)
 protest_data %>% tally()
 ```
 
-How many protests occurred in the year 2022? **8305 protests**
+How many protests occurred in the year 2022? **8305 protests.**
+
+# 4. Create a New Variable
+
+Create a new variable in the protest dataset called `cont_us`. This binary variable should measure whether the protest occurred in the contiguous United States.
+- Protests that occurred in Hawaii or Alaska should have a value of 0.
+- Protests that occurred in the other 48 states and Washington D.C. should have a value of 1.
+
+``` {r create-a-new-variable}
+protest_data$cont_us <- if_else(protest_data$admin1 %in% c("Hawaii", "Alaska"), 0, 1)
+select(protest_data, 'admin1', 'cont_us')
+filter(protest_data, cont_us == 0)  %>% tally()
+```
+
+How many protests occurred outside of the contiguous United States? **66 protests occurred outside the contiguous USA.**
+
+# 5. Transform the Dataset
+
+Transform the protest-level dataset into a state-level dataset and save it as a new object in R. In the new dataset, each observation should be a state or territory of the United States. It should contain the following variables:
+
+- state: the name of the state.
+- fatalities: the total number of fatalities at protests in that state in 2022.
+- count: a count of the number of protests in that state in 2022.
+
+Print the first few rows of the new dataset using the head() function.
+
+``` {r transform-the-dataset}
+state_protest_data <- protest_data %>% 
+```
