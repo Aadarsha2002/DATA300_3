@@ -27,7 +27,7 @@ library("tidyverse")
 Import *protest_data.csv* as an object in R. Print the first few rows of the dataset using the `head()` function.
 
 ``` {r import-data}
-protest_data <- read_csv("protest_data.csv")
+protest_data <- read_csv("HW1/protest_data.csv")
 head(protest_data)
 ```
 
@@ -51,7 +51,7 @@ Create a new variable in the protest dataset called `cont_us`. This binary varia
 
 ``` {r create-a-new-variable}
 protest_data$cont_us <- if_else(protest_data$admin1 %in% c("Hawaii", "Alaska"), 0, 1)
-select(protest_data, 'admin1', 'cont_us')
+select(protest_data, "admin1", "cont_us")
 filter(protest_data, cont_us == 0)  %>% tally()
 ```
 
@@ -68,5 +68,9 @@ Transform the protest-level dataset into a state-level dataset and save it as a 
 Print the first few rows of the new dataset using the head() function.
 
 ``` {r transform-the-dataset}
-state_protest_data <- protest_data %>% 
+state_protest_data <- protest_data %>% add_count(admin1, wt = fatalities) %>%
+  group_by(admin1) %>%
+  summarize(fatalities = sum(fatalities), n=sum(n))
+head(state_protest_data)
+select(state_protest_data, "admin1", "fatalities", "n")
 ```
