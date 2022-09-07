@@ -53,3 +53,14 @@ gss
 ``` {r select}
 ?select
 ```
+
+``` {r filter}
+?filter
+```
+``` {r gss2-try-pipeling}
+gss2 <- gss %>% filter(age < 21)
+```
+
+``` {r gss2-multiple-operations}
+gss2 <- gss2 %>% select(age, zodiac) %>% arrange(age)
+```
