@@ -13,7 +13,7 @@
 
 <meta name="date" content="2022-09-08" />
 
-<title>Homework 1 Solution</title>
+<title>DATA 300 3 Homework 1 Solution</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2762,7 +2762,7 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Homework 1 Solution</h1>
+<h1 class="title toc-ignore">DATA 300 3 Homework 1 Solution</h1>
 <h4 class="author">Aadarsha Gopala Reddy</h4>
 <h4 class="date">September 8, 2022</h4>
 
@@ -2773,8 +2773,12 @@ border-radius: 0px;
 <h1>1. Load Packages</h1>
 <p>In a chunk of code, load the tidyverse package and any other packages
 you will use in this document.</p>
-<p><code>install.packages()</code> installs a package, if it exists.
-<code>library()</code> loads the package.</p>
+<blockquote>
+<p><code>install.packages()</code> Installs any packages.</p>
+</blockquote>
+<blockquote>
+<p><code>library()</code> Loads any packages.</p>
+</blockquote>
 <pre class="r"><code>library(&quot;tidyverse&quot;)</code></pre>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
 ## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
@@ -2789,6 +2793,12 @@ you will use in this document.</p>
 <h1>2. Import Data</h1>
 <p>Import <em>protest_data.csv</em> as an object in R. Print the first
 few rows of the dataset using the <code>head()</code> function.</p>
+<blockquote>
+<p><code>read_csv()</code> reads a csv file into R.</p>
+</blockquote>
+<blockquote>
+<p><code>head()</code> prints the first few rows of a dataset.</p>
+</blockquote>
 <pre class="r"><code>protest_data &lt;- read_csv(&quot;protest_data.csv&quot;)</code></pre>
 <pre><code>## Rows: 21282 Columns: 11
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -2809,6 +2819,17 @@ few rows of the dataset using the <code>head()</code> function.</p>
 <h1>3. Filter Data</h1>
 <p>Subset the protest dataset to only the protests that occurred in the
 year 2022. Make sure to save your changes to the dataset.</p>
+<blockquote>
+<p><code>filter()</code> filters a dataset based on a condition. This
+was used to filter the dataset to include only the protests that
+occurred in 2022.</p>
+</blockquote>
+<blockquote>
+<p><code>%&gt;%</code> pipes the output of one function into the input
+of another function. <code>tally()</code> counts the number of rows in a
+dataset. Both were used together to calculate the number of protests
+that occurred in 2022.</p>
+</blockquote>
 <pre class="r"><code>protest_data &lt;- filter(protest_data, year == 2022)
 head(protest_data)</code></pre>
 <div data-pagedtable="false">
@@ -2833,6 +2854,20 @@ protest occurred in the contiguous United States. - Protests that
 occurred in Hawaii or Alaska should have a value of 0. - Protests that
 occurred in the other 48 states and Washington D.C. should have a value
 of 1.</p>
+<blockquote>
+<p><code>if_else()</code> creates a new variable based on a condition.
+This was used to create the <code>cont_us</code> variable.</p>
+</blockquote>
+<blockquote>
+<p><code>select()</code> selects a subset of columns from a dataset.
+This was used to select the <code>state</code> and <code>cont_us</code>
+column from the dataset.</p>
+</blockquote>
+<blockquote>
+<p><code>filter()</code> and <code>%&gt;%</code> was used to calculate
+the number of protests that occurred outside of the contiguous United
+States.</p>
+</blockquote>
 <pre class="r"><code>protest_data$cont_us &lt;- if_else(protest_data$admin1 %in% c(&quot;Hawaii&quot;, &quot;Alaska&quot;), 0, 1)
 select(protest_data, &quot;admin1&quot;, &quot;cont_us&quot;)</code></pre>
 <div data-pagedtable="false">
@@ -2861,15 +2896,93 @@ the following variables:</p>
 in 2022.</li>
 <li>count: a count of the number of protests in that state in 2022.</li>
 </ul>
-<p>Print the first few rows of the new dataset using the head()
-function.</p>
-<pre class="r"><code>state_protest_data &lt;- protest_data %&gt;% add_count(admin1) %&gt;%
-                      group_by(admin1) %&gt;%
-                      summarize(fatalities = sum(fatalities))
-select(state_protest_data, &quot;admin1&quot;, &quot;fatalities&quot;)</code></pre>
+<p>Print the first few rows of the new dataset using the
+<code>head()</code> function.</p>
+<blockquote>
+<p><code>group_by()</code> groups a dataset by a variable. This was used
+to group the dataset by state.</p>
+</blockquote>
+<blockquote>
+<p><code>summarize()</code> summarizes a dataset by a variable. This was
+used to calculate the total number of fatalities and the number of
+protests in each state.</p>
+</blockquote>
+<blockquote>
+<p><code>%&gt;%</code> was used to pipe the output of
+<code>group_by()</code> into the input of <code>summarize()</code>.</p>
+</blockquote>
+<pre class="r"><code>state_data &lt;- protest_data %&gt;% group_by(admin1) %&gt;% summarise(fatalities = sum(fatalities), count = n())
+head(state_data)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["admin1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["fatalities"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Alabama","2":"0"},{"1":"Alaska","2":"0"},{"1":"Arizona","2":"0"},{"1":"Arkansas","2":"0"},{"1":"California","2":"0"},{"1":"Colorado","2":"0"},{"1":"Connecticut","2":"0"},{"1":"Delaware","2":"0"},{"1":"District of Columbia","2":"0"},{"1":"Florida","2":"0"},{"1":"Georgia","2":"0"},{"1":"Hawaii","2":"0"},{"1":"Idaho","2":"0"},{"1":"Illinois","2":"0"},{"1":"Indiana","2":"0"},{"1":"Iowa","2":"0"},{"1":"Kansas","2":"0"},{"1":"Kentucky","2":"0"},{"1":"Louisiana","2":"0"},{"1":"Maine","2":"0"},{"1":"Maryland","2":"0"},{"1":"Massachusetts","2":"0"},{"1":"Michigan","2":"0"},{"1":"Minnesota","2":"0"},{"1":"Mississippi","2":"0"},{"1":"Missouri","2":"0"},{"1":"Montana","2":"0"},{"1":"Nebraska","2":"0"},{"1":"Nevada","2":"0"},{"1":"New Hampshire","2":"0"},{"1":"New Jersey","2":"0"},{"1":"New Mexico","2":"0"},{"1":"New York","2":"0"},{"1":"North Carolina","2":"0"},{"1":"North Dakota","2":"0"},{"1":"Ohio","2":"0"},{"1":"Oklahoma","2":"0"},{"1":"Oregon","2":"0"},{"1":"Pennsylvania","2":"0"},{"1":"Rhode Island","2":"0"},{"1":"South Carolina","2":"0"},{"1":"South Dakota","2":"0"},{"1":"Tennessee","2":"0"},{"1":"Texas","2":"0"},{"1":"Utah","2":"0"},{"1":"Vermont","2":"0"},{"1":"Virginia","2":"0"},{"1":"Washington","2":"0"},{"1":"West Virginia","2":"0"},{"1":"Wisconsin","2":"0"},{"1":"Wyoming","2":"0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["admin1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["fatalities"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Alabama","2":"0","3":"103"},{"1":"Alaska","2":"0","3":"18"},{"1":"Arizona","2":"0","3":"117"},{"1":"Arkansas","2":"0","3":"59"},{"1":"California","2":"0","3":"1174"},{"1":"Colorado","2":"0","3":"92"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="sort-the-state-level-data" class="section level1">
+<h1>6. Sort the State-Level Data</h1>
+<p>Sort the state-level dataset by the number of protests occurring in
+the state. Using a method of your choosing, display the names and number
+of protests for the 5 states with the most protests in 2022.</p>
+<blockquote>
+<p><code>arrange()</code> arranges a dataset by a variable. This was
+used to arrange the dataset by the number of protests in each state.</p>
+</blockquote>
+<blockquote>
+<p><code>select()</code> was used to select the <code>state</code> and
+<code>count</code> columns from the dataset.</p>
+</blockquote>
+<blockquote>
+<p><code>%&gt;%</code> was again used to pipe the output of
+<code>arrange()</code> into the input of <code>select()</code>.</p>
+</blockquote>
+<pre class="r"><code>state_data &lt;- state_data %&gt;% arrange(desc(count)) %&gt;% select(admin1, count)
+head(state_data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["admin1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["count"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"California","2":"1174"},{"1":"New York","2":"869"},{"1":"Florida","2":"522"},{"1":"Pennsylvania","2":"434"},{"1":"Texas","2":"342"},{"1":"Massachusetts","2":"334"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="merge-two-datasets" class="section level1">
+<h1>7. Merge Two Datasets</h1>
+<p>Import a second dataset, <code>state.csv</code>. Each observation in
+this dataset is a state. This dataset contains two variables:</p>
+<ul>
+<li>state: the name of the state.</li>
+<li>population: the number of people living in the state.</li>
+</ul>
+<p>Join your state-level dataset together with state.csv such that the
+population variable appears in your state-level dataset. Use the
+<code>head()</code> function to print your state-level dataset with the
+population variable included.</p>
+<blockquote>
+<p><code>left_join()</code> joins two datasets together. This was used
+to join the state-level dataset with the state.csv dataset.</p>
+</blockquote>
+<blockquote>
+<p><code>select()</code> was used to select the <code>state</code>,
+<code>count</code>, and <code>population</code> columns from the
+dataset.</p>
+</blockquote>
+<blockquote>
+<p><code>%&gt;%</code> was again used to pipe the output of
+<code>left_join()</code> into the input of <code>select()</code>.</p>
+</blockquote>
+<pre class="r"><code>state_population &lt;- read_csv(&quot;state.csv&quot;)</code></pre>
+<pre><code>## Rows: 50 Columns: 2
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): state
+## dbl (1): population
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>state_data &lt;- left_join(state_data, state_population, by = c(&quot;admin1&quot; = &quot;state&quot;))
+head(state_data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["admin1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["count"],"name":[2],"type":["int"],"align":["right"]},{"label":["population"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"California","2":"1174","3":"21198"},{"1":"New York","2":"869","3":"18076"},{"1":"Florida","2":"522","3":"8277"},{"1":"Pennsylvania","2":"434","3":"11860"},{"1":"Texas","2":"342","3":"12237"},{"1":"Massachusetts","2":"334","3":"5814"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>

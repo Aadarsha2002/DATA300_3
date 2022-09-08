@@ -1,5 +1,5 @@
 ---
-title: "Homework 1 Solution"
+title: "DATA 300 3 Homework 1 Solution"
 author: "Aadarsha Gopala Reddy"
 date: "September 8, 2022"
 output:
@@ -15,8 +15,9 @@ output:
 
 In a chunk of code, load the tidyverse package and any other packages you will use in this document.
 
-`install.packages()` installs a package, if it exists.
-`library()` loads the package.
+>`install.packages()` Installs any packages.
+
+>`library()` Loads any packages.
 
 ``` {r load-packages}
 library("tidyverse")
@@ -26,14 +27,22 @@ library("tidyverse")
 
 Import *protest_data.csv* as an object in R. Print the first few rows of the dataset using the `head()` function.
 
+>`read_csv()` reads a csv file into R.
+
+>`head()` prints the first few rows of a dataset.
+
 ``` {r import-data}
-protest_data <- read_csv("HW1/protest_data.csv")
+protest_data <- read_csv("protest_data.csv")
 head(protest_data)
 ```
 
 # 3. Filter Data
 
 Subset the protest dataset to only the protests that occurred in the year 2022. Make sure to save your changes to the dataset.
+
+>`filter()` filters a dataset based on a condition. This was used to filter the dataset to include only the protests that occurred in 2022.
+
+> `%>%` pipes the output of one function into the input of another function. `tally()` counts the number of rows in a dataset. Both were used together to calculate the number of protests that occurred in 2022.
 
 ``` {r filter-data}
 protest_data <- filter(protest_data, year == 2022)
@@ -48,6 +57,12 @@ How many protests occurred in the year 2022? **8305 protests.**
 Create a new variable in the protest dataset called `cont_us`. This binary variable should measure whether the protest occurred in the contiguous United States.
 - Protests that occurred in Hawaii or Alaska should have a value of 0.
 - Protests that occurred in the other 48 states and Washington D.C. should have a value of 1.
+
+>`if_else()` creates a new variable based on a condition. This was used to create the `cont_us` variable.
+
+>`select()` selects a subset of columns from a dataset. This was used to select the `state` and `cont_us` column from the dataset.
+
+>`filter()` and `%>%` was used to calculate the number of protests that occurred outside of the contiguous United States.
 
 ``` {r create-a-new-variable}
 protest_data$cont_us <- if_else(protest_data$admin1 %in% c("Hawaii", "Alaska"), 0, 1)
@@ -65,12 +80,51 @@ Transform the protest-level dataset into a state-level dataset and save it as a 
 - fatalities: the total number of fatalities at protests in that state in 2022.
 - count: a count of the number of protests in that state in 2022.
 
-Print the first few rows of the new dataset using the head() function.
+Print the first few rows of the new dataset using the `head()` function.
+
+>`group_by()` groups a dataset by a variable. This was used to group the dataset by state.
+
+>`summarize()` summarizes a dataset by a variable. This was used to calculate the total number of fatalities and the number of protests in each state.
+
+>`%>%` was used to pipe the output of `group_by()` into the input of `summarize()`.
 
 ``` {r transform-the-dataset}
-state_protest_data <- protest_data %>% add_count(admin1, wt = fatalities) %>%
-  group_by(admin1) %>%
-  summarize(fatalities = sum(fatalities), n=sum(n))
-head(state_protest_data)
-select(state_protest_data, "admin1", "fatalities", "n")
+state_data <- protest_data %>% group_by(admin1) %>% summarise(fatalities = sum(fatalities), count = n())
+head(state_data)
+```
+
+# 6. Sort the State-Level Data
+
+Sort the state-level dataset by the number of protests occurring in the state. Using a method of your choosing, display the names and number of protests for the 5 states with the most protests in 2022.
+
+>`arrange()` arranges a dataset by a variable. This was used to arrange the dataset by the number of protests in each state.
+
+>`select()` was used to select the `state` and `count` columns from the dataset.
+
+>`%>%` was again used to pipe the output of `arrange()` into the input of `select()`.
+
+``` {r sort-the-state-level-data}
+state_data <- state_data %>% arrange(desc(count)) %>% select(admin1, count)
+head(state_data)
+```
+
+# 7. Merge Two Datasets
+
+Import a second dataset, `state.csv`. Each observation in this dataset is a state. This dataset contains two variables:
+
+- state: the name of the state.
+- population: the number of people living in the state.
+
+Join your state-level dataset together with state.csv such that the population variable appears in your state-level dataset. Use the `head()` function to print your state-level dataset with the population variable included.
+
+>`left_join()` joins two datasets together. This was used to join the state-level dataset with the state.csv dataset.
+
+>`select()` was used to select the `state`, `count`, and `population` columns from the dataset.
+
+>`%>%` was again used to pipe the output of `left_join()` into the input of `select()`.
+
+``` {r merge-two-datasets}
+state_population <- read_csv("state.csv")
+state_data <- left_join(state_data, state_population, by = c("admin1" = "state"))
+head(state_data)
 ```

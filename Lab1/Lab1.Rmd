@@ -15,7 +15,7 @@ library(tidyverse)
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r test}
-plot(cars)
+#plot(cars)
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
@@ -25,7 +25,7 @@ When you save the notebook, an HTML file containing the code and output will be 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
 ```{r reading_csv}
-gss <- read_csv("gss2014.csv")
+gss <- read_csv("Lab1/gss2014.csv")
 head(gss)
 ```
 
@@ -50,17 +50,12 @@ gss$can_drink <- if_else(gss$age >= 21, 1, 0)
 gss
 ```
 
-``` {r select}
-?select
-```
-
-``` {r filter}
-?filter
-```
 ``` {r gss2-try-pipeling}
 gss2 <- gss %>% filter(age < 21)
+gss2
 ```
 
 ``` {r gss2-multiple-operations}
 gss2 <- gss2 %>% select(age, zodiac) %>% arrange(age)
+gss2
 ```
