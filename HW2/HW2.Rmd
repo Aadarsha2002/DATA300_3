@@ -46,7 +46,7 @@ carbon_emissions <- carbon_emissions %>%
 
 # plot a chart with the points having an alpha of 0.5
 ggplot(carbon_emissions, aes(x = gdp_per_capita, y = co2_per_capita)) +
-  geom_point(alpha = 0.5) +
+  geom_point(alpha = 0.25) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "GDP per capita (log -> dollars per person)", y = "Carbon emissions per capita (log -> tons per person)")
 ```
@@ -84,12 +84,12 @@ carbon_emissions <- carbon_emissions %>%
   )
 
 ggplot(carbon_emissions, aes(x = energy_per_capita, y = co2_per_capita)) +
-  geom_point(alpha = 0.5) +
+  geom_point(alpha = 0.25) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "Energy per capita (kilowatt-hours per person)", y = "Carbon emissions per capita (log -> tons per person)")
 
 ggplot(carbon_emissions, aes(x = gdp_per_capita, y = co2_per_capita)) +
-  geom_point(alpha = 0.5) +
+  geom_point(alpha = 0.25) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "GDP per capita (log -> dollars per person)", y = "Carbon emissions per capita (log -> tons per person)")
 ```
