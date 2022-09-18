@@ -1,0 +1,129 @@
+---
+title: "DATA 300 3 Homework 2 Solution"
+author: "Aadarsha Gopala Reddy"
+date: "September 27, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+# 1. Data Import
+
+Load any packages that you will use to complete the assignment. Import carbon_emissions.csv as an object in R.
+
+>`library()` Loads any packages.
+
+>`read.csv()` Reads the csv file.
+
+``` {r data-import}
+library(tidyverse)
+carbon_emissions <- read_csv("carbon_emissions.csv")
+# The unit of observation in this dataset is the country-year.
+# country: the name of the country.
+# iso_code: a three-letter abbreviation of the country name.
+# year: the year of the observation.
+# co2_per_capta: an estimate of the amount of carbon dioxide released into the air, measured in tons per person.
+# population: the population of the country in this year.
+# gdp_per_capita: the gross domestic product, a measure of wealth, of the country in this year. Measured in dollars per person.
+# energy_per_capita: the amount of energy that the country consumed. Measured in kilowatt-hours per person.
+# kyoto: whether the country signed the Kyoto Protocol in this year. Only measured for 1998.
+```
+
+# 2. Fitting a Bivariate Model
+
+Fit a linear model where the outcome is carbon emissions per capita and the predictor is GDP per capita. Apply any data transformations you believe are appropriate. (You might investigate whether data transformations are appropriate by visualizing the data or some other approach.)
+
+``` {r fitting-a-bivariate-model}
+carbon_emissions <- carbon_emissions %>%
+  mutate(co2_per_capita = log(co2_per_capita),
+         gdp_per_capita = log(gdp_per_capita))
+
+#plot a chart
+ggplot(carbon_emissions, aes(x = gdp_per_capita, y = co2_per_capita)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "GDP per capita (log)", y = "Carbon emissions per capita (log)")
+```
+
+# 3. Interpreting The Bivariate Model
+
+Interpret the output from the bivariate model.
+
+- Is the relationship between GDP and carbon emissions positive or negative?
+What is the magnitude of the association? (How much should we expect carbon emissions to change when GDP increases?)
+
+>
+
+- Is the coefficient estimate statistically significant at the .05 level?
+
+>
+
+- How well does the model fit? (You might check metrics like the R-squared value or use visualization to answer this question.)
+
+>
+
+``` {r interpreting-the-bivariate-model}
+bivariate_model <- lm(co2_per_capita ~ gdp_per_capita, data = carbon_emissions)
+summary(bivariate_model)
+```
+
+# 4. Fitting a Multivariate Model
+
+Fit a linear model where the outcome is carbon emissions per capita. This time, include GDP per capita and at least one other predictor variable of your choosing. Again, apply any data transformations that you believe are appropriate.
+
+Justify your choice of predictor variables. Why are the variables you chose appropriate for the model?
+
+``` {r fitting-a-multivariate-model}
+```
+
+# 5. Interpreting the Multivariate Model
+
+Interpret the output from the multivariate model.
+
+- Are the relationships between the predictors positive or negative?
+- What is the magnitude of the association between each predictor and carbon emissions?
+- Which of the coefficient estimates are statistically significant at the .05 level?
+- How well does the model fit? (You might check metrics like the R-squared value or use visualization to -answer this question.)
+
+``` {r interpreting-the-multivariate-model}
+```
+
+# 6. Out-Of-Sample Predictions
+
+Using the multivariate model from the previous question, calculate the predicted values of carbon emissions per capita across the range of GDP per capita. Set all other predictor variables to their mean value for this prediction.
+
+You can generate predictions using manual calculations or by using R's predict() function. Give the at least the predicted values of carbon emission per capita for the maximum, minimum, and mean GDP observed in the dataset.
+
+``` {r out-of-sample-predictions}
+```
+
+# 7. Subset the Data
+
+Today, almost every country in the world has signed an international pledge to lower carbon emissions. This wasn't always the case. In 1998, a group of world leaders were the first to sign the Kyoto Protocol, an international agreement to limit carbon emissions and combat climate change.
+
+Which countries were most likely to sign the Kyoto Protocol when it was introduced? We will build a model to answer this question. First, subset the dataset to only observations from the year 1998.
+
+``` {r subset-the-data}
+```
+
+# 8. Modeling the Decision to Sign the Kyoto Protocol
+
+The variable `kyoto` is a binary variable that records whether a country signed the Kyoto Protocol in the year 1998. Countries with a value of 1 signed the Kyoto Protocol in that year, and countries with a value of 0 did not.
+
+Build a model where the outcome is `kyoto`. Justify your choice of model and your choice of predictor variable(s).
+
+``` {r modeling-the-decision-to-sign-the-kyoto-protocol}
+```
+
+# 9. Out-Of-Sample Predictions for the Kyoto Protocol
+
+Choose one predictor variable from the model in the previous question. Calculate the predicted probability that a country signed the Kyoto protocol across the range of that variable. (If there are other variables in your model, set them to their mean value.)
+
+Give at least the predicted probabilities of signing the treaty for the minimum, maximum, and mean values of the variable you chose. (Hint: if using R's `predict()` function, you may find it helpful to check the help page for predict.glm.)
+
+``` {r out-of-sample-predictions-for-the-kyoto-protocol}
+```
