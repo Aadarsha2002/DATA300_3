@@ -46,10 +46,16 @@ carbon_emissions <- carbon_emissions %>%
   )
 
 # plot a chart with the points having an alpha of 0.5
-ggplot(carbon_emissions, aes(x = gdp_per_capita, y = co2_per_capita)) +
+ggplot(
+  carbon_emissions,
+  aes(x = gdp_per_capita, y = co2_per_capita)
+) +
   geom_point(alpha = 0.25) +
   geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "GDP per capita (log -> dollars per person)", y = "Carbon emissions per capita (log -> tons per person)")
+  labs(
+    x = "GDP per capita (log -> dollars per person)",
+    y = "Carbon emissions per capita (log -> tons per person)"
+  )
 
 # fit a linear model
 model <- lm(co2_per_capita ~ gdp_per_capita, data = carbon_emissions)
@@ -81,13 +87,22 @@ Fit a linear model where the outcome is carbon emissions per capita. This time, 
   
 ``` {r fitting-a-multivariate-model}
 # Fit and plot a linear model where the outcome is carbon emissions per capita. This time, include GDP per capita and at least one other predictor variable of your choosing. Again, apply any data transformations that you believe are appropriate.
-ggplot(carbon_emissions, aes(x = gdp_per_capita, y = co2_per_capita)) +
+ggplot(
+  carbon_emissions,
+  aes(x = gdp_per_capita, y = co2_per_capita)
+) +
   geom_point(alpha = 0.25) +
   geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "GDP per capita (log -> dollars per person)", y = "Carbon emissions per capita (log -> tons per person)")
+  labs(
+    x = "GDP per capita (log -> dollars per person)",
+    y = "Carbon emissions per capita (log -> tons per person)"
+  )
 
 # fit a linear model
-model2 <- lm(co2_per_capita ~ gdp_per_capita + energy_per_capita, data = carbon_emissions)
+model2 <- lm(
+  co2_per_capita ~ gdp_per_capita + energy_per_capita,
+  data = carbon_emissions[1:7100, ]
+)
 summary(model)
 
 plot(model2)
@@ -121,45 +136,23 @@ Using the multivariate model from the previous question, calculate the predicted
 
 You can generate predictions using manual calculations or by using R's predict() function. Give at least the predicted values of carbon emission per capita for the maximum, minimum, and mean GDP observed in the dataset.
 
-``` {r out-of-sample-predictions}
-# calculate the mean of the predictors
-mean_gdp <- mean(carbon_emissions$gdp_per_capita)
-mean_energy <- mean(carbon_emissions$energy_per_capita)
+>`predict()` Generates predictions from a model.
 
-# calculate the predicted values of carbon emissions per capita
-predicted_co2 <- predict(
+``` {r out-of-sample-predictions}
+# I couldn't figure this out. It always returns NA no matter what.
+gdp_min <- min(carbon_emissions$gdp_per_capita)
+gdp_max <- max(carbon_emissions$gdp_per_capita)
+gdp_mean <- mean(carbon_emissions$gdp_per_capita)
+
+energy_mean <- mean(carbon_emissions$energy_per_capita)
+
+predict(
   model2,
   data.frame(
-    gdp_per_capita = c(
-      min(carbon_emissions$gdp_per_capita),
-      max(carbon_emissions$gdp_per_capita),
-      mean_gdp
-    ),
-    energy_per_capita = mean_energy
+    gdp_per_capita = c(gdp_min, gdp_max, gdp_mean),
+    energy_per_capita = c(energy_mean, energy_mean, energy_mean)
   )
 )
-
-# create a data frame with the predicted values
-predicted_co2 <- data.frame(
-  predicted_co2 = predicted_co2,
-  gdp_per_capita = c(
-    min(carbon_emissions$gdp_per_capita),
-    max(carbon_emissions$gdp_per_capita),
-    mean_gdp
-  )
-)
-
-# plot the predicted values
-ggplot(
-  predicted_co2,
-  aes(x = gdp_per_capita, y = predicted_co2)
-) +
-  geom_point(alpha = 0.25) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(
-    x = "GDP per capita (log -> dollars per person)",
-    y = "Carbon emissions per capita (log -> tons per person)"
-  )
 ```
 
 # 7. Subset the Data
@@ -178,6 +171,8 @@ carbon_emissions_1998 <- carbon_emissions %>%
 The variable `kyoto` is a binary variable that records whether a country signed the Kyoto Protocol in the year 1998. Countries with a value of 1 signed the Kyoto Protocol in that year, and countries with a value of 0 did not.
 
 Build a model where the outcome is `kyoto`. Justify your choice of model and your choice of predictor variable(s).
+
+>I chose a logistic regression model because the outcome is binary. I chose the GDP per capita as the predictor variable because it seems to be the most important predictor of carbon emissions.
 
 ``` {r modeling-the-decision-to-sign-the-kyoto-protocol}
 # fit a logistic regression model
