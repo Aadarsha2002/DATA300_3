@@ -22,15 +22,6 @@ Load any packages that you will use to complete the assignment. Import carbon_em
 ``` {r data-import}
 library(tidyverse)
 carbon_emissions <- read_csv("carbon_emissions.csv")
-# The unit of observation in this dataset is the country-year.
-# country: the name of the country.
-# iso_code: a three-letter abbreviation of the country name.
-# year: the year of the observation.
-# co2_per_capta: an estimate of the amount of carbon dioxide released into the air, measured in tons per person.
-# population: the population of the country in this year.
-# gdp_per_capita: the gross domestic product, a measure of wealth, of the country in this year. Measured in dollars per person.
-# energy_per_capita: the amount of energy that the country consumed. Measured in kilowatt-hours per person.
-# kyoto: whether the country signed the Kyoto Protocol in this year. Only measured for 1998.
 ```
 
 # 2. Fitting a Bivariate Model
@@ -71,15 +62,15 @@ Interpret the output from the bivariate model.
 - Is the relationship between GDP and carbon emissions positive or negative?
 What is the magnitude of the association? (How much should we expect carbon emissions to change when GDP increases?)
 
->The relationship between GPD and carbon emissions is positive. The slope is 1.3, which means that for every 1 unit increase in GDP, carbon emissions increase by 1.3 units.
+>*The relationship between GPD and carbon emissions is positive. The slope is 1.3, which means that for every 1 unit increase in GDP, carbon emissions increase by 1.3 units.*
 
 - Is the coefficient estimate statistically significant at the .05 level?
 
->Since the p-value is <2e-16, the coefficient estimate is statistically significant at the .05 level.
+>*Since the p-value is <2e-16, the coefficient estimate is statistically significant at the .05 level.*
 
 - How well does the model fit? (You might check metrics like the R-squared value or use visualization to answer this question.)
 
->The R-squared value is 0.8071, which means that 80.71% of the variation in carbon emissions is explained by the model. The model fits well.
+>*The R-squared value is 0.8071, which means that 80.71% of the variation in carbon emissions is explained by the model. The model fits well.*
 
 # 4. Fitting a Multivariate Model
 
@@ -116,19 +107,19 @@ Interpret the output from the multivariate model.
 
 - Are the relationships between the predictors positive or negative?
 
->The relationship between both predictors and the outcome is positive. However, the relationship between energy per capita and carbon emissions is stronger than the relationship between GDP per capita and carbon emissions.
+>*The relationship between both predictors and the outcome is positive. However, the relationship between energy per capita and carbon emissions is stronger than the relationship between GDP per capita and carbon emissions.*
 
 - What is the magnitude of the association between each predictor and carbon emissions?
 
->The slope of the energy per capita is 0.89, which means that for every 1 unit increase in energy per capita, carbon emissions increase by 0.89 units. The slope of the GDP per capita is 0.14, which means that for every 1 unit increase in GDP per capita, carbon emissions increase by 0.14 units.
+>*The slope of the energy per capita is 0.89, which means that for every 1 unit increase in energy per capita, carbon emissions increase by 0.89 units. The slope of the GDP per capita is 0.14, which means that for every 1 unit increase in GDP per capita, carbon emissions increase by 0.14 units.*
 
 - Which of the coefficient estimates are statistically significant at the .05 level?
 
->Both the coefficients are statistically significant at the .05 level.
+>*Both the coefficients are statistically significant at the .05 level.*
 
 - How well does the model fit? (You might check metrics like the R-squared value or use visualization to -answer this question.)
 
->The R-squared value is 0.9415, which means that 94.15% of the variation in carbon emissions is explained by the model. The model fits well.
+>*The R-squared value is 0.9415, which means that 94.15% of the variation in carbon emissions is explained by the model. The model fits well.*
 
 # 6. Out-Of-Sample Predictions
 
@@ -139,10 +130,13 @@ You can generate predictions using manual calculations or by using R's predict()
 >`predict()` Generates predictions from a model.
 
 ``` {r out-of-sample-predictions}
-# I couldn't figure this out. It always returns NA no matter what.
+# I couldn't figure this out. It always returns NA no matter what I try.
 gdp_min <- min(carbon_emissions$gdp_per_capita)
+print(gdp_min)
 gdp_max <- max(carbon_emissions$gdp_per_capita)
+print(gdp_max)
 gdp_mean <- mean(carbon_emissions$gdp_per_capita)
+print(gdp_mean)
 
 energy_mean <- mean(carbon_emissions$energy_per_capita)
 
@@ -172,17 +166,16 @@ The variable `kyoto` is a binary variable that records whether a country signed 
 
 Build a model where the outcome is `kyoto`. Justify your choice of model and your choice of predictor variable(s).
 
->I chose a logistic regression model because the outcome is binary. I chose the GDP per capita as the predictor variable because it seems to be the most important predictor of carbon emissions.
+>I chose a logistic regression model because the outcome is binary. I chose the gdp per capita as the predictor variable because it seems to be the most important predictor of carbon emissions.
 
 ``` {r modeling-the-decision-to-sign-the-kyoto-protocol}
-# fit a logistic regression model
-logistic_model <- glm(kyoto ~ gdp_per_capita, data = carbon_emissions_1998, family = "binomial")
+model3 <- glm(
+  kyoto ~ gdp_per_capita,
+  data = carbon_emissions_1998,
+  family = binomial(link = "logit")
+)
 
-# plot the model
-ggplot(carbon_emissions_1998, aes(x = gdp_per_capita, y = kyoto)) +
-  geom_point(alpha = 0.25) +
-  geom_smooth(method = "glm", se = FALSE, method.args = list(family = "binomial")) +
-  labs(x = "GDP per capita (log -> dollars per person)", y = "Signed Kyoto Protocol (1 = yes, 0 = no)")
+plot(model3)
 ```
 
 # 9. Out-Of-Sample Predictions for the Kyoto Protocol
@@ -194,43 +187,18 @@ Give at least the predicted probabilities of signing the treaty for the minimum,
 > `predict.glm()` Generates predictions from a generalized linear model.
 
 ``` {r out-of-sample-predictions-for-the-kyoto-protocol}
-## Again, I couldn't figure this out. It always returns NA no matter what.
+gdp_min <- min(carbon_emissions_1998$gdp_per_capita)
+print(gdp_min)
+gdp_max <- max(carbon_emissions_1998$gdp_per_capita)
+print(gdp_max)
+gdp_mean <- mean(carbon_emissions_1998$gdp_per_capita)
+print(gdp_mean)
 
-# calculate the mean of the predictor
-mean_gdp <- mean(carbon_emissions_1998$gdp_per_capita)
-
-# calculate the predicted probabilities
-predicted_kyoto <- predict(
-  logistic_model,
+predict(
+  model3,
   data.frame(
-    gdp_per_capita = c(
-      min(carbon_emissions_1998$gdp_per_capita),
-      max(carbon_emissions_1998$gdp_per_capita),
-      mean_gdp
-    )
+    gdp_per_capita = c(gdp_min, gdp_max, gdp_mean)
   ),
   type = "response"
 )
-
-# create a data frame with the predicted probabilities
-predicted_kyoto <- data.frame(
-  predicted_kyoto = predicted_kyoto,
-  gdp_per_capita = c(
-    min(carbon_emissions_1998$gdp_per_capita),
-    max(carbon_emissions_1998$gdp_per_capita),
-    mean_gdp
-  )
-)
-
-# plot the predicted probabilities
-ggplot(
-  predicted_kyoto,
-  aes(x = gdp_per_capita, y = predicted_kyoto)
-) +
-  geom_point(alpha = 0.25) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(
-    x = "GDP per capita (log -> dollars per person)",
-    y = "Probability of signing Kyoto Protocol"
-  )
 ```
