@@ -191,7 +191,11 @@ Choose one predictor variable from the model in the previous question. Calculate
 
 Give at least the predicted probabilities of signing the treaty for the minimum, maximum, and mean values of the variable you chose. (Hint: if using R's `predict()` function, you may find it helpful to check the help page for predict.glm.)
 
+> `predict.glm()` Generates predictions from a generalized linear model.
+
 ``` {r out-of-sample-predictions-for-the-kyoto-protocol}
+## Again, I couldn't figure this out. It always returns NA no matter what.
+
 # calculate the mean of the predictor
 mean_gdp <- mean(carbon_emissions_1998$gdp_per_capita)
 
