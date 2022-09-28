@@ -13,7 +13,7 @@ output:
 
 # 1. Data Import
 
-Load any packages that you will use to complete the assignment. Import carbon_emissions.csv as an object in R.
+Load any packages that you will use to complete the assignment. Import `carbon_emissions.csv` as an object in R.
 
 >`library()` Loads any packages.
 
@@ -33,7 +33,19 @@ carbon_emissions <- carbon_emissions %>%
   mutate(
     co2_per_capita = log(co2_per_capita),
     gdp_per_capita = log(gdp_per_capita),
-    energy_per_capita = log(energy_per_capita)
+    energy_per_capita = log(energy_per_capita + 0.001) #+0.001 to avoid log(0)
+  )
+
+# na.rm = TRUE to remove NA values and prevent outputs from being NA
+# create min, max, and mean values for gdp and energy_per_capita
+carbon_emissions %>%
+  summarise(
+    min_gdp = min(gdp_per_capita, na.rm = TRUE),
+    max_gdp = max(gdp_per_capita, na.rm = TRUE),
+    mean_gdp = mean(gdp_per_capita, na.rm = TRUE),
+    min_energy = min(energy_per_capita, na.rm = TRUE),
+    max_energy = max(energy_per_capita, na.rm = TRUE),
+    mean_energy = mean(energy_per_capita, na.rm = TRUE)
   )
 
 # plot a chart with the points having an alpha of 0.5
@@ -50,9 +62,10 @@ ggplot(
 
 # fit a linear model
 model <- lm(co2_per_capita ~ gdp_per_capita, data = carbon_emissions)
+
 summary(model)
 
-plot(model)
+# plot(model)
 ```
 
 # 3. Interpreting The Bivariate Model
@@ -77,7 +90,6 @@ What is the magnitude of the association? (How much should we expect carbon emis
 Fit a linear model where the outcome is carbon emissions per capita. This time, include GDP per capita and at least one other predictor variable of your choosing. Again, apply any data transformations that you believe are appropriate.
   
 ``` {r fitting-a-multivariate-model}
-# Fit and plot a linear model where the outcome is carbon emissions per capita. This time, include GDP per capita and at least one other predictor variable of your choosing. Again, apply any data transformations that you believe are appropriate.
 ggplot(
   carbon_emissions,
   aes(x = gdp_per_capita, y = co2_per_capita)
@@ -92,14 +104,28 @@ ggplot(
 # fit a linear model
 model2 <- lm(
   co2_per_capita ~ gdp_per_capita + energy_per_capita,
-  data = carbon_emissions[1:7100, ]
+  data = carbon_emissions[]
 )
+
 summary(model)
 
-plot(model2)
+ggplot(
+  carbon_emissions,
+  aes(x = gdp_per_capita, y = energy_per_capita)
+) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "GDP per capita (log -> dollars per person)",
+    y = "Energy per capita (log -> kilowatt-hours per person)"
+  )
+
+# plot(model2)
 ```
 
 Justify your choice of predictor variables. Why are the variables you chose appropriate for the model?
+
+>*I chose energy per capita as the other predictor variable because I think it alongwith GDP per capita will explain the variation in carbon emissions per capita. I think this is appropriate because the amount of energy consumed by a nation might explain it's carbon emissions better. Additionally, the higher a country's GDP, the higher energy it consumes.*
 
 # 5. Interpreting the Multivariate Model
 
@@ -130,21 +156,19 @@ You can generate predictions using manual calculations or by using R's predict()
 >`predict()` Generates predictions from a model.
 
 ``` {r out-of-sample-predictions}
-# I couldn't figure this out. It always returns NA no matter what I try.
-gdp_min <- min(carbon_emissions$gdp_per_capita)
-print(gdp_min)
-gdp_max <- max(carbon_emissions$gdp_per_capita)
-print(gdp_max)
-gdp_mean <- mean(carbon_emissions$gdp_per_capita)
-print(gdp_mean)
-
-energy_mean <- mean(carbon_emissions$energy_per_capita)
-
 predict(
   model2,
   data.frame(
-    gdp_per_capita = c(gdp_min, gdp_max, gdp_mean),
-    energy_per_capita = c(energy_mean, energy_mean, energy_mean)
+    gdp_per_capita = c(
+      min(carbon_emissions$gdp_per_capita, na.rm = TRUE),
+      max(carbon_emissions$gdp_per_capita, na.rm = TRUE),
+      mean(carbon_emissions$gdp_per_capita, na.rm = TRUE)
+    ),
+    energy_per_capita = c(
+      min(carbon_emissions$energy_per_capita, na.rm = TRUE),
+      max(carbon_emissions$energy_per_capita, na.rm = TRUE),
+      mean(carbon_emissions$energy_per_capita, na.rm = TRUE)
+    )
   )
 )
 ```
@@ -156,8 +180,7 @@ Today, almost every country in the world has signed an international pledge to l
 Which countries were most likely to sign the Kyoto Protocol when it was introduced? We will build a model to answer this question. First, subset the dataset to only observations from the year 1998.
 
 ``` {r subset-the-data}
-carbon_emissions_1998 <- carbon_emissions %>%
-  filter(year == 1998)
+carbon_emissions_1998 <- carbon_emissions %>% filter(year == 1998)
 ```
 
 # 8. Modeling the Decision to Sign the Kyoto Protocol
@@ -166,7 +189,7 @@ The variable `kyoto` is a binary variable that records whether a country signed 
 
 Build a model where the outcome is `kyoto`. Justify your choice of model and your choice of predictor variable(s).
 
->I chose a logistic regression model because the outcome is binary. I chose the gdp per capita as the predictor variable because it seems to be the most important predictor of carbon emissions.
+>*I chose a logistic regression model because the outcome is binary. I chose the gdp per capita as the predictor variable because it seems to be the most important predictor of carbon emissions.*
 
 ``` {r modeling-the-decision-to-sign-the-kyoto-protocol}
 model3 <- glm(
@@ -175,7 +198,7 @@ model3 <- glm(
   family = binomial(link = "logit")
 )
 
-plot(model3)
+# plot(model3)
 ```
 
 # 9. Out-Of-Sample Predictions for the Kyoto Protocol
@@ -187,17 +210,14 @@ Give at least the predicted probabilities of signing the treaty for the minimum,
 > `predict.glm()` Generates predictions from a generalized linear model.
 
 ``` {r out-of-sample-predictions-for-the-kyoto-protocol}
-gdp_min <- min(carbon_emissions_1998$gdp_per_capita)
-print(gdp_min)
-gdp_max <- max(carbon_emissions_1998$gdp_per_capita)
-print(gdp_max)
-gdp_mean <- mean(carbon_emissions_1998$gdp_per_capita)
-print(gdp_mean)
-
 predict(
   model3,
   data.frame(
-    gdp_per_capita = c(gdp_min, gdp_max, gdp_mean)
+    gdp_per_capita = c(
+      min(carbon_emissions$gdp_per_capita, na.rm = TRUE),
+      max(carbon_emissions$gdp_per_capita, na.rm = TRUE),
+      mean(carbon_emissions$gdp_per_capita, na.rm = TRUE)
+    )
   ),
   type = "response"
 )
