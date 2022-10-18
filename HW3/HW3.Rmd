@@ -1,0 +1,167 @@
+---
+title: "DATA 300 3 Homework 3 Solution"
+author: "Aadarsha Gopala Reddy"
+date: "October 18, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+# 1. Setup
+
+- Install and Import the kidney disease dataset as an object in R.
+
+- Load the following packages: `tidyverse, caret, rpart,` and `rpart.plot`.
+
+>`install.packages()` Installs packages from CRAN.
+
+>`library()` Loads any packages.
+
+>`read.csv()` Reads the csv file.
+
+``` {r setup}
+library(tidyverse)
+library(caret)
+library(rpart)
+library(rpart.plot)
+
+kidney <- read.csv("kidney_disease.csv")
+```
+
+# 2. Test-Train Split
+
+Split the dataset into a testing and training dataset.
+
+- Selection into the testing and training datasets should be random.
+
+- Each patient should appear in either the testing or training dataset, but no patient should appear in both. 
+
+- Your training dataset should have more observations than your testing dataset. Aim to have between 60 and 70% of the observations in the training dataset.
+
+Hint: you might do this using either the sample() function or the rbinom() function.
+
+>`set.seed()` Sets the seed for the random number generator.
+
+>`sample()` Samples a vector of numbers.
+
+>`setdiff()` Returns the difference between two vectors.
+
+``` {r test-train-split}
+set.seed(1)
+train <- sample(1:nrow(kidney), size = 0.7 * nrow(kidney))
+test <- setdiff(1:nrow(kidney), train)
+```
+
+# 3. Train K-Nearest Neighbors
+
+Train a K-Nearest Neighbors algorithm to predict nephritis.
+
+- When training the model, use the training dataset only.
+
+- You may need to change how the variables in the dataset are coded to train the algorithm.
+
+- Use the train() function in the caret package.
+
+>`as.factor()` Converts a vector to a factor.
+
+>`train()` Trains a model.
+
+``` {r train-k-nearest-neighbors}
+# change the coding of the variables
+kidney$nausea <- as.factor(kidney$nausea)
+kidney$backpain <- as.factor(kidney$backpain)
+kidney$pushing <- as.factor(kidney$pushing)
+kidney$pain <- as.factor(kidney$pain)
+kidney$itching <- as.factor(kidney$itching)
+kidney$nephritis <- as.factor(kidney$nephritis)
+
+# train the model
+knn_model <- train(nephritis ~ ., data = kidney[train, ], method = "knn")
+
+# print the model
+knn_model
+```
+
+Interpret the output of the trained algorithm. What value of K works best for predicting nephritis? What is the predictive accuracy for that value of K?
+
+>**The optimal value of K is 5 which gives an accuracy of 98.34091%.**
+
+# 4. Test K-Nearest Neighbors
+
+Test the algorithm you trained in the previous section using your testing dataset.
+
+- Generate predictions for the patients in the testing dataset using the `predict()` function.
+
+- You may find the `confusionMatrix()` function helpful for comparing the predictions to the actual outcomes.
+
+>`predict()` Generates predictions for a model.
+
+>`confusionMatrix()` Generates a confusion matrix.
+
+``` {r test-k-nearest-neighbors}
+# predict the outcomes
+knn_pred <- predict(knn_model, kidney[test, ])
+
+# compare the predictions to the actual outcomes
+confusionMatrix(knn_pred, kidney$nephritis[test])
+```
+
+What is the predictive accuracy of the algorithm in the testing data?
+
+>**The predictive accuracy of the k-nearest neighbors algorithm in the testing data is 100%.**
+
+# 5. Train A Decision Tree
+Train a decision tree to predict nephritis.
+
+- When training the model, use the training dataset only.
+
+- Use the rpart() function in the rpart package.
+
+>`rpart()` Trains a decision tree.
+
+``` {r train-a-decision-tree}
+# train the model
+tree_model <- rpart(nephritis ~ ., data = kidney[train, ], method = "class")
+
+# print the model
+tree_model
+```
+
+# 6. View the Decision Tree
+
+Use the rpart.plot() function to view the decision tree that you trained in the previous question. Interpret this tree. What symptoms is the algorithm using to predict nephritis?
+
+>`rpart.plot()` Plots a decision tree.
+
+``` {r view-the-decision-tree}
+# plot the tree
+rpart.plot(tree_model)
+```
+
+# 7. Test the Decision Tree
+
+Test the decision tree that you trained in question 5 using your testing dataset. Again, you can generate predictions using the predict() function.
+
+>`predict()` Generates predictions for a model.
+
+``` {r test-the-decision-tree}
+# predict the outcomes
+tree_pred <- predict(tree_model, kidney[test, ], type = "class")
+
+# compare the predictions to the actual outcomes
+confusionMatrix(tree_pred, kidney$nephritis[test])
+```
+
+What is the predictive accuracy of the decision tree in the testing data?
+
+>**The predictive accuracy of the decision tree in the testing data is 88.89%.**
+
+# 8. Compare the Algorithms
+
+Which of your two algorithms predicts nephritis more accurately?
+
+>**The k-nearest neighbors algorithm predicts nephritis more accurately than the Decision Tree Algorithm. Although, for most seed values, both algorithms predict with 100% accuracy for this dataset.**
