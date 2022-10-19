@@ -1,0 +1,26 @@
+---
+title: "DATA 300 3 Homework 4 Solution"
+author: "Aadarsha Gopala Reddy"
+date: "October 27, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+```{r}
+# an R program to scrape Amazon.com for the top 100 best selling electronics products
+library(rvest)
+library(tidyverse)
+
+# scraping the data from the website
+url <- "https://www.amazon.com/Best-Sellers-Electronics/zgbs/electronics/ref=zg_bs_nav_0"
+page <- read_html(url)
+html_text(page)
+products <- page %>%
+  html_nodes(".zg-item-immersion") %>%
+  html_text()
+```
