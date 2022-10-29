@@ -11,16 +11,33 @@ output:
     df_print: paged
 ---
 
-```{r}
-# an R program to scrape Amazon.com for the top 100 best selling electronics products
+```{r import-libraries, include=FALSE}
+# an R program to scrape https://www.espncricinfo.com/player/team/india-6 for all information about the Indian International Cricket Team
 library(rvest)
 library(tidyverse)
-
-# scraping the data from the website
-url <- "https://www.amazon.com/Best-Sellers-Electronics/zgbs/electronics/ref=zg_bs_nav_0"
+library(dplyr)
+library(xml2)
+```
+```{r get-html, include=TRUE}
+# scrape the website
+url <- "https://www.espncricinfo.com/player/team/india-6"
 page <- read_html(url)
-html_text(page)
-products <- page %>%
-  html_nodes(".zg-item-immersion") %>%
+# output the html text to a text file
+write_html(page, "/html_text.txt")
+```
+```{r get-data, include=TRUE}
+compact_name = page %>%
+  html_nodes(".ds-text-compact-l") %>%
   html_text()
+name = page %>%
+  html_nodes(".ds-text-tight-l") %>%
+  html_text()
+age <- page %>%
+  html_nodes(".ds-text-tight-m.ds-font-regular.ds-text-ui-typo-mid") %>%
+  html_text()
+
+# convert to dataframe
+players <- data.frame(compact_name, name, age, stringsAsFactors = FALSE)
+# output the player list to a csv file
+write.csv(players, "/players.csv")
 ```
