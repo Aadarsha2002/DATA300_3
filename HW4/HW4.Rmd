@@ -17,11 +17,14 @@ library(rvest)
 library(tidyverse)
 library(dplyr)
 library(xml2)
+library(RSelenium)
 ```
-```{r get-html}
-# scrape the website
+```{r get-html} 
 url <- "https://www.espncricinfo.com/player/team/india-6"
+
+# get the page html
 page <- read_html(url)
+
 # output the html text to a text file
 write_html(page, "HW4/html_text.txt")
 ```
@@ -40,8 +43,9 @@ links <- page %>%
   html_nodes(".ds-inline-flex.ds-items-start.ds-leading-none") %>%
   html_attr("href") %>%
   paste("https://www.espncricinfo.com", ., sep = "")
-
-links <- links[32:71]
+```
+```{r get-individual-players-data}
+links <- links[36:75]
 
 more_info <- function(player_link) {
   player_page <- read_html(player_link)
@@ -57,7 +61,8 @@ more_info <- function(player_link) {
 
 # call the function for each player in the list of links
 player_info <- lapply(links, more_info)
-
+```
+```{r convert-to-dataframe}
 # convert the list to a data frame
 player_info_dataframe <- do.call(rbind, player_info)
 
@@ -67,4 +72,138 @@ player_info_dataframe <- player_info_dataframe[grepl("Full Name", player_info_da
 # export as csv
 write.csv(player_info_dataframe, "HW4/player_info.csv", row.names = FALSE)
 
+###### DO NOT TOUCH ANYTHING ABOVE THIS LINE######
+```
+```{r clean_data}
+# create a new dataframe for this part
+player_info_dataframe2 <- read.csv("HW4/player_info.csv")
+
+# loop through each row in the dataframe
+for (i in 1:nrow(player_info_dataframe2)) {
+  # remove text after "TEAMS" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("TEAMS.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "RELATIONS" into a new column
+  player_info_dataframe2$relations[i] <-
+    strsplit(player_info_dataframe2$x[i], "RELATIONS")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("RELATIONS.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Playing Role" into a new column
+  player_info_dataframe2$playing_role[i] <-
+    strsplit(player_info_dataframe2$x[i], "Playing Role")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Playing Role.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Fielding Position" into a new column
+  player_info_dataframe2$fielding_position[i] <-
+    strsplit(player_info_dataframe2$x[i], "Fielding Position")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Fielding Position.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Bowling Style" into a new column
+  player_info_dataframe2$bowling_style[i] <-
+    strsplit(player_info_dataframe2$x[i], "Bowling Style")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Bowling Style.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Batting Style" into a new column
+  player_info_dataframe2$batting_style[i] <-
+    strsplit(player_info_dataframe2$x[i], "Batting Style")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Batting Style.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Also Known As" into a new column
+  player_info_dataframe2$aka[i] <-
+    strsplit(player_info_dataframe2$x[i], "Also Known As")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Also Known As.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Age" into a new column
+  player_info_dataframe2$age[i] <-
+    strsplit(player_info_dataframe2$x[i], "Age")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Age.*", "", player_info_dataframe2[i, 1])
+
+  ########################################
+
+  # put text after "Born" into a new column
+  player_info_dataframe2$born[i] <-
+    strsplit(player_info_dataframe2$x[i], "Born")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Born.*", "", player_info_dataframe2[i, 1])
+
+  # born format: "MMM DD, YYYY, City, State"
+  # convert to seperate location and date columns
+  # extract the date
+  player_info_dataframe2$born_date[i] <-
+    strsplit(player_info_dataframe2$born[i], ",")[[1]][1]
+  # extract the year
+  player_info_dataframe2$born_year[i] <-
+    strsplit(player_info_dataframe2$born[i], ",")[[1]][2]
+  # combine date and year
+  player_info_dataframe2$born_date[i] <-
+    paste(player_info_dataframe2$born_year[i], player_info_dataframe2$born_date[i], sep = "-")
+
+  # calculate age from date of birth and today's date and replace the age column and round to 3 decimal places
+  player_info_dataframe2$age[i] <-
+    round(as.numeric(difftime(Sys.Date(), as.Date(player_info_dataframe2$born_date[i], format = "%Y-%B %d"), units = "auto")) / 365, 3)
+
+  # extract the city
+  player_info_dataframe2$born_location[i] <-
+    strsplit(player_info_dataframe2$born[i], ",")[[1]][3]
+  # extract the state
+  player_info_dataframe2$born_state[i] <-
+    strsplit(player_info_dataframe2$born[i], ",")[[1]][4]
+  # combine city and state
+  player_info_dataframe2$born_location_state[i] <-
+    paste(player_info_dataframe2$born_location[i],
+      player_info_dataframe2$born_state[i],
+      sep = ","
+    )
+
+  ########################################
+
+  # put text after "Full Name" into a new column
+  player_info_dataframe2$full_name[i] <-
+    strsplit(player_info_dataframe2$x[i], "Full Name")[[1]][2]
+  # remove text after "Playing Role" from the original column
+  player_info_dataframe2[i, 1] <-
+    gsub("Full Name.*", "", player_info_dataframe2[i, 1])
+}
+
+# remove first column and born_date and born_year columns
+player_info_dataframe2 <- player_info_dataframe2[, -c(1, 9, 11, 12, 13)]
+
+# add the links to the dataframe
+player_info_dataframe2$links <- links
+
+# reorder the columns
+player_info_dataframe2 <- player_info_dataframe2[, c(10, 6, 1, 8, 7, 9, 4, 5, 3, 2, 11)]
+
+# export to csv
+write.csv(player_info_dataframe2, "HW4/player_info2.csv", row.names = FALSE)
 ```
