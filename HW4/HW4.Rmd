@@ -18,26 +18,53 @@ library(tidyverse)
 library(dplyr)
 library(xml2)
 ```
-```{r get-html, include=TRUE}
+```{r get-html}
 # scrape the website
 url <- "https://www.espncricinfo.com/player/team/india-6"
 page <- read_html(url)
 # output the html text to a text file
-write_html(page, "/html_text.txt")
+write_html(page, "HW4/html_text.txt")
 ```
-```{r get-data, include=TRUE}
-compact_name = page %>%
-  html_nodes(".ds-text-compact-l") %>%
+```{r clean-data}
+compact_name <- page %>%
+  html_nodes(".ds-text-compact-l.ds-font-medium.ds-text-ui-typo") %>%
   html_text()
-name = page %>%
+name <- page %>%
   html_nodes(".ds-text-tight-l") %>%
   html_text()
 age <- page %>%
   html_nodes(".ds-text-tight-m.ds-font-regular.ds-text-ui-typo-mid") %>%
   html_text()
+# open each player's page and scrape the data
+links <- page %>%
+  html_nodes(".ds-inline-flex.ds-items-start.ds-leading-none") %>%
+  html_attr("href") %>%
+  paste("https://www.espncricinfo.com", ., sep = "")
 
-# convert to dataframe
-players <- data.frame(compact_name, name, age, stringsAsFactors = FALSE)
-# output the player list to a csv file
-write.csv(players, "/players.csv")
+links <- links[32:71]
+
+more_info <- function(player_link) {
+  player_page <- read_html(player_link)
+  player_info <- player_page %>%
+    html_nodes(".ds-p-4") %>%
+    html_text()
+  player_info <- as.data.frame(
+    player_info,
+    stringsAsFactors = FALSE
+  )
+  return(player_info)
+}
+
+# call the function for each player in the list of links
+player_info <- lapply(links, more_info)
+
+# convert the list to a data frame
+player_info_dataframe <- do.call(rbind, player_info)
+
+# Keep all rows starting with "Full Name" and delete the rest
+player_info_dataframe <- player_info_dataframe[grepl("Full Name", player_info_dataframe$player_info), ]
+
+# export as csv
+write.csv(player_info_dataframe, "HW4/player_info.csv", row.names = FALSE)
+
 ```
