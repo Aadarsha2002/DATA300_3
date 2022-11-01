@@ -1,7 +1,7 @@
 ---
 title: "DATA 300 3 Homework 4 Solution"
 author: "Aadarsha Gopala Reddy"
-date: "October 27, 2022"
+date: "November 1, 2022"
 output:
   pdf_document:
     toc: true
@@ -11,7 +11,7 @@ output:
     df_print: paged
 ---
 
-```{r import-libraries, include=FALSE}
+```{r import-libraries}
 # load the libraries
 library(rvest)
 library(tidyverse)
@@ -25,7 +25,7 @@ library(RSelenium)
 page <- read_html("https://www.espncricinfo.com/player/team/india-6")
 
 # output the html text to a text file
-write_html(page, "HW4/html_text.txt")
+write_html(page, "html_text.txt")
 ```
 
 ```{r clean-data}
@@ -42,7 +42,7 @@ age <- page %>%
 
 # get the nodes with this specific class
 # ".ds-inline-flex.ds-items-start.ds-leading-none"
-# and then get the href attribute
+# and then get the href attribute from those node
 links <- page %>%
   html_nodes(".ds-inline-flex.ds-items-start.ds-leading-none") %>%
   html_attr("href") %>%
@@ -67,26 +67,36 @@ more_info <- function(player_link) {
   return(player_info)
 }
 
-# call the function for link in the links list
+# call the function for each link in the links list
 player_info <- lapply(links, more_info)
 ```
 
 ```{r convert-to-dataframe}
-# convert the list to a data frame
+# convert the list to a dataframe
 player_info_dataframe <- do.call(rbind, player_info)
 
-# Keep only the rows containing "Full Name"
-player_info_dataframe <- player_info_dataframe[grepl("Full Name", player_info_dataframe$player_info), ]
+# keep only the rows containing "Full Name"
+player_info_dataframe <- player_info_dataframe[
+  grepl("Full Name", player_info_dataframe$player_info),
+]
 
 # export as csv
-write.csv(player_info_dataframe, "HW4/player_info_dataframe.csv", row.names = FALSE)
+write.csv(
+  player_info_dataframe,
+  "player_info_dataframe.csv",
+  row.names = FALSE
+)
 ```
 
 ```{r clean_data}
-# duplicate the data frame
-player_info_dataframe2 <- read.csv("HW4/player_info_dataframe.csv")
-# export as csv file "player_info3.csv"
-write.csv(player_info_dataframe2, "HW4/player_info3.csv", row.names = FALSE)
+# duplicate the dataframe
+player_info_dataframe2 <- read.csv("player_info_dataframe.csv")
+# export as csv file
+write.csv(
+  player_info_dataframe2,
+  "player_info3.csv",
+  row.names = FALSE
+)
 
 # loop through each row in the dataframe
 for (i in seq_len(nrow(player_info_dataframe2))) {
@@ -166,29 +176,32 @@ for (i in seq_len(nrow(player_info_dataframe2))) {
   player_info_dataframe2[i, 1] <-
     gsub("Born.*", "", player_info_dataframe2[i, 1])
 
-  # born format: "MMM DD, YYYY, City, State"
-  # convert to seperate location and date columns
+  # born column format: "MMM DD, YYYY, City, State"
+  # split into seperate location and date columns
   # extract the date into new column
-  player_info_dataframe2$born_date[i] <-
+  player_info_dataframe2$birthday[i] <-
     strsplit(player_info_dataframe2$born[i], ",")[[1]][1]
   # extract the year into new column
   player_info_dataframe2$born_year[i] <-
     strsplit(player_info_dataframe2$born[i], ",")[[1]][2]
-  # combine date and year into born_date column
-  player_info_dataframe2$born_date[i] <-
+  # combine date and year into birthday column
+  player_info_dataframe2$birthday[i] <-
     paste(
       player_info_dataframe2$born_year[i],
       player_info_dataframe2$born_date[i],
       sep = "-"
     )
 
-  # calculate age from date of birth and today's date;
-  # replace the age column; round to 3 decimal places
+  # calculate age from birthday and today's date
+  # replace the age column & round to 3 decimal places
   player_info_dataframe2$age[i] <-
     round(as.numeric(
       difftime(
         Sys.Date(),
-        as.Date(player_info_dataframe2$born_date[i], format = "%Y-%B %d"),
+        as.Date(
+          player_info_dataframe2$born_date[i],
+          format = "%Y-%B %d"
+        ),
         units = "auto"
       )
     ) / 365, 3)
@@ -200,7 +213,7 @@ for (i in seq_len(nrow(player_info_dataframe2))) {
   player_info_dataframe2$born_state[i] <-
     strsplit(player_info_dataframe2$born[i], ",")[[1]][4]
   # combine city and state into new column
-  player_info_dataframe2$born_location[i] <-
+  player_info_dataframe2$birth_location[i] <-
     paste(player_info_dataframe2$born_city[i],
       player_info_dataframe2$born_state[i],
       sep = ","
@@ -217,7 +230,7 @@ for (i in seq_len(nrow(player_info_dataframe2))) {
 }
 
 # remove redundant columns
-# (first column, born_date, born_year, born_city, born_state)
+# (empty first column, born, born_year, born_city, born_state)
 player_info_dataframe2 <- player_info_dataframe2[
   ,
   -c(1, 9, 11, 12, 13)
@@ -233,5 +246,8 @@ player_info_dataframe2 <- player_info_dataframe2[
 ]
 
 # export to csv
-write.csv(player_info_dataframe2, "HW4/player_info2.csv", row.names = FALSE)
+write.csv(player_info_dataframe2, "player_info2.csv", row.names = FALSE)
+
+# output the dataframe
+player_info_dataframe2
 ```
