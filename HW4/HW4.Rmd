@@ -84,81 +84,81 @@ write.csv(player_info_dataframe, "HW4/player_info_dataframe.csv", row.names = FA
 
 ```{r clean_data}
 # duplicate the data frame
-player_info_dataframe2 <- read_csv("HW4/player_info_dataframe.csv")
+player_info_dataframe2 <- read.csv("HW4/player_info_dataframe.csv")
 # export as csv file "player_info3.csv"
-write.csv(player_info_dataframe2, file = "HW4/player_info3.csv")
+write.csv(player_info_dataframe2, "HW4/player_info3.csv", row.names = FALSE)
 
 # loop through each row in the dataframe
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+for (i in seq_len(nrow(player_info_dataframe2))) {
   # remove text "TEAMS" and after
   player_info_dataframe2[i, 1] <-
     gsub("TEAMS.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "RELATIONS" and after, into a new column
   player_info_dataframe2$relations[i] <-
     strsplit(player_info_dataframe2$x[i], "RELATIONS")[[1]][2]
   # remove text "RELATIONS" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("RELATIONS.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Playing Role" and after, into a new column
   player_info_dataframe2$playing_role[i] <-
     strsplit(player_info_dataframe2$x[i], "Playing Role")[[1]][2]
   # remove text after "Playing Role" from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Playing Role.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Fielding Position" and after, into a new column
   player_info_dataframe2$fielding_position[i] <-
     strsplit(player_info_dataframe2$x[i], "Fielding Position")[[1]][2]
   # remove text "Fielding Position" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Fielding Position.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Bowling Style" and after, into a new column
   player_info_dataframe2$bowling_style[i] <-
     strsplit(player_info_dataframe2$x[i], "Bowling Style")[[1]][2]
   # remove text "Bowling Style" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Bowling Style.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Batting Style" and after, into a new column
   player_info_dataframe2$batting_style[i] <-
     strsplit(player_info_dataframe2$x[i], "Batting Style")[[1]][2]
   # remove text "Batting Style" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Batting Style.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Also Known As" and after, into a new column
   player_info_dataframe2$aka[i] <-
     strsplit(player_info_dataframe2$x[i], "Also Known As")[[1]][2]
   # remove text "Also Known As" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Also Known As.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Age" and after, into a new column
   player_info_dataframe2$age[i] <-
     strsplit(player_info_dataframe2$x[i], "Age")[[1]][2]
   # remove text "Age" and after, from the original column
   player_info_dataframe2[i, 1] <-
     gsub("Age.*", "", player_info_dataframe2[i, 1])
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Born" and after, into a new column
   player_info_dataframe2$born[i] <-
     strsplit(player_info_dataframe2$x[i], "Born")[[1]][2]
@@ -205,9 +205,9 @@ for (i in 1:seq_len(nrow(player_info_dataframe2))) {
       player_info_dataframe2$born_state[i],
       sep = ","
     )
-}
-########################################
-for (i in 1:seq_len(nrow(player_info_dataframe2))) {
+
+  ########################################
+
   # put text "Full Name" and after, into a new column
   player_info_dataframe2$full_name[i] <-
     strsplit(player_info_dataframe2$x[i], "Full Name")[[1]][2]
