@@ -199,7 +199,7 @@ for (i in seq_len(nrow(player_info_dataframe2))) {
       difftime(
         Sys.Date(),
         as.Date(
-          player_info_dataframe2$born_date[i],
+          player_info_dataframe2$birthday[i],
           format = "%Y-%B %d"
         ),
         units = "auto"
