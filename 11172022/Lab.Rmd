@@ -1,0 +1,28 @@
+---
+title: "DATA 300 3 11/17/2022 Lab"
+author: "Aadarsha Gopala Reddy"
+date: "November 17, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+```{r import-libraries}
+#install package keras
+library(keras)
+#install package tensorflow
+library(tensorflow)
+install_tensorflow()
+```
+
+```{r import-data}
+data <- dataset_fashion_mnist()
+```
+
+```{r create-graph}
+
+```

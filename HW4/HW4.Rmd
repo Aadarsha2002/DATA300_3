@@ -20,12 +20,21 @@ library(xml2)
 library(RSelenium)
 ```
 
+
+
 ```{r get-html}
 # get the page html
 page <- read_html("https://www.espncricinfo.com/player/team/india-6")
 
 # output the html text to a text file
 write_html(page, "html_text.txt")
+```
+
+**Because the original page is a scrollable version, we need to get the html of the page after scrolling down to the bottom of the page. This has to be done manually due to the dynamic nature of the page.**
+
+```{r get-entire-page}
+# The html of the page after scrolling down to the bottom is saved in the file "html_text2.txt"
+page <- read_html("html_text2.html")
 ```
 
 ```{r clean-data}
@@ -46,11 +55,14 @@ age <- page %>%
 links <- page %>%
   html_nodes(".ds-inline-flex.ds-items-start.ds-leading-none") %>%
   html_attr("href") %>%
-  paste("https://www.espncricinfo.com", ., sep = "")
+  paste("", ., sep = "")
 
 # keep only the links which start with "https://www.espncricinfo.com/player/"
 # (keep only links to player pages)
 links <- links[grepl("https://www.espncricinfo.com/player/", links)]
+
+# remove last the row
+links <- links[-length(links)]
 ```
 
 ```{r get-individual-players-data}
@@ -91,12 +103,6 @@ write.csv(
 ```{r clean_data}
 # duplicate the dataframe
 player_info_dataframe2 <- read.csv("player_info_dataframe.csv")
-# export as csv file
-write.csv(
-  player_info_dataframe2,
-  "player_info3.csv",
-  row.names = FALSE
-)
 
 # loop through each row in the dataframe
 for (i in seq_len(nrow(player_info_dataframe2))) {

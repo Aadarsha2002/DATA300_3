@@ -1,0 +1,47 @@
+---
+title: "DATA 300 3 11/10/2022 Lab"
+author: "Aadarsha Gopala Reddy"
+date: "November 11, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+```{r import-libraries}
+# import dolphin_edges.csv
+dolphin_edges <- read.csv("11102022/dolphin_edges.csv")
+head(dolphin_edges)
+# import dolphin_nodes.csv
+dolphin_nodes <- read.csv("11102022/dolphin_nodes.csv")
+head(dolphin_nodes)
+
+# Install and load: igraph, ergm, intergraph
+library(igraph)
+library(ergm)
+library(intergraph)
+```
+
+```{r create-graph}
+# use graph_from_data_frame() to make a network object
+dolphin_graph <- graph_from_data_frame(
+  d = dolphin_edges,
+  vertices = dolphin_nodes,
+  directed = FALSE
+)
+
+# plot the network
+# plot(dolphin_graph)
+
+# Find the node centrality with degree()
+degree(dolphin_graph)
+
+#what is the name of the dolphin with the most friends
+dolphin_nodes[which.max(degree(dolphin_graph)),]
+
+#find density of network with edge_density()
+edge_density(dolphin_graph)
+```
