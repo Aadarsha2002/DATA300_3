@@ -1,0 +1,252 @@
+---
+title: "DATA 300 3 Homework 6 Solution"
+author: "Aadarsha Gopala Reddy"
+date: "December 7, 2022"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+# 1. Setup
+
+Load the packages "keras" and "tensorflow." If this is your first time using these packages, you may have to install the underlying python libraries using the following functions (these functions do not take any arguments):
+
+- install_tensorflow()
+- install_keras()
+
+Note: Windows machines may experience an OpenSSL error when attempting to install these packages. This is caused by a bug in the reticulate package, which is automatically loaded when using python libraries. You can work around this problem by installing a developer version of the reticulate package, which has implemented a bug fix:
+
+`remotes::install_github("rstudio/reticulate")`
+
+> `library()` imports the packages into the R session.
+
+```{r setup}
+library(reticulate)
+library(tensorflow)
+library(keras)
+#install_tensorflow()
+#install_keras()
+#it kinda works when I run the install commands in the console, but when knitting, I need to comment them out, else I run out of memory
+```
+
+---
+
+# 2. Load the Dataset
+
+This dataset contains movie reviews along with their associated binary sentiment polarity labels. It is intended to serve as a benchmark for
+sentiment classification. This document outlines how the dataset was gathered, and how to use the files provided.
+
+The core dataset contains 50,000 reviews split evenly into 25k train and 25k test sets. The overall distribution of labels is balanced (25k
+pos and 25k neg). We also include an additional 50,000 unlabeled documents for unsupervised learning.
+
+In the entire collection, no more than 30 reviews are allowed for any given movie because reviews for the same movie tend to have correlated
+ratings. Further, the train and test sets contain a disjoint set of movies, so no significant performance is obtained by memorizing movie-unique terms and their associated with observed labels. In the labeled train/test sets, a negative review has a score <= 4 out of 10, and a positive review has a score >= 7 out of 10. Thus reviews with more neutral ratings are not included in the train/test sets. In the unsupervised set, reviews of any rating are included and there are an even number of reviews > 5 and <= 5.
+
+There are two top-level directories [train/, test/] corresponding to the training and test sets. Each contains [pos/, neg/] directories for the reviews with binary labels positive and negative. Within these directories, reviews are stored in text files named following the convention [[id][rating].txt] where [id] is a unique id and [rating] is the star rating for that review on a 1-10 scale. For example, the file [test/pos/2008.txt] is the text for a positive-labeled test set example with unique id 200 and star rating 8/10 from IMDb. The [train/unsup/] directory has 0 for all ratings because the ratings are omitted for this portion of the dataset.
+
+We also include the IMDb URLs for each review in a separate [urls_[pos, neg, unsup].txt] file. A review with unique id 200 will have its URL on line 200 of this file. Due the ever-changing IMDb, we are unable to link directly to the review, but only to the movie's review page.
+
+In addition to the review text files, we include already-tokenized bag of words (BoW) features that were used in our experiments. These are stored in .feat files in the train/test directories. Each .feat file is in LIBSVM format, an ascii sparse-vector format for labeled data. The feature indices in these files start from 0, and the text tokens corresponding to a feature index is found in [imdb.vocab]. So a line with 0:7 in a .feat file means the first word in [imdb.vocab] (the) appears 7 times in that review.
+
+LIBSVM page for details on .feat file format:
+http://www.csie.ntu.edu.tw/~cjlin/libsvm/
+
+We also include [imdbEr.txt] which contains the expected rating for each token in [imdb.vocab] as computed by (Potts, 2011). The expected rating is a good way to get a sense for the average polarity of a word in the dataset.
+
+```{r load-the-dataset}
+# load the data set
+fashion_mnist <- dataset_fashion_mnist()
+```
+
+---
+
+# 3. Format the Dataset
+
+Using the data set that you loaded in the previous question, create four objects in R:
+
+- Image data for the training data set;
+- Class labels for the training data set;
+- Image data for the testing data set;
+- Class labels for the testing data set.
+
+Hint: use the dollar sign operator to select individual components of the Fashion-MNEST data set.
+
+```{r format-the-dataset}
+# format the data set
+train_images <- fashion_mnist$train$x
+train_labels <- fashion_mnist$train$y
+test_images <- fashion_mnist$test$x
+test_labels <- fashion_mnist$test$y
+```
+
+---
+
+# 4. Recode Class Labels
+
+The class labels for both the testing and training data set are stored as numeric values 0 through 9. Recode the class labels into two categories: one for items worn on the torso, and another for pants/shoes/accessories. In your new coding, T-shirts/tops, pullovers, dresses, coats, and shirts will be coded 1, and all other classes will be coded 0.
+
+When you are finished, you should have two objects:
+
+- Training class labels, containing 60,000 instances of either 0 or 1;
+- Testing class labels, containing 10,000 instances of either 0 or 1.
+
+```{r recode-class-labels}
+# recode the class labels
+train_labels <- ifelse(train_labels %in% c(0, 1, 2, 3, 4, 5), 1, 0)
+test_labels <- ifelse(test_labels %in% c(0, 1, 2, 3, 4, 5), 1, 0)
+```
+
+---
+
+# 5. Pre-Process Pixel Values
+
+The pixel brightness values are stored as numeric values between 0 and 255. Re-scale these values to be bounded between 0 and 1. (This will make the computations easier for our neural net.) Values of 255 in the original coding will become values of 1 in the new coding; values of 100 in the old coding will become values of .392 in the new coding; values of 0 in the original coding will become values of 0 in the new coding; and so on.
+
+Hint: you can accomplish this by dividing every value by 255.
+
+```{r pre-process-pixel-values}
+# pre-process the pixel values
+train_images <- train_images / 255
+test_images <- test_images / 255
+```
+
+---
+
+# 6. Structure a Neural Network
+
+Using the keras package, you can build your network structure layer-by-layer sequentially. Begin by initializing a sequential neural network:
+
+`net <- keras_model_sequential()`
+
+Add layers to your model using a pipe. The code below adds the first layer (a convolutional layer) to your network:
+
+`net %>% layer_conv_2d(input_shape = c(28, 28, 1), filters = 1, kernel_size = c(15, 15))`
+
+Add additional layers in order by adding more pipes:
+
+`net %>% [layer1] %>% [layer2] %>%` ...and so on.
+
+Check the layers you have added to your network by typing its name. R will output a line for each layer, the output shape of each layer, and some summary information about the model.
+
+Create a network structure containing the following layers:
+
+- A convolutional layer
+  + Arguments:
+    * This layer should take an input of a 2-dimensional array of 28x28 pixels;
+    * This layer should apply a single convolutional filter to the input;
+    * The convolutional filter should be 15x15 pixels;
+  + Outputs:
+    * This layer should output a 14x14 output feature map.
+- A max-pooling layer
+  + Arguments:
+    * This layer should "pool" values by taking the maximum value within each 2x2 window.
+  + Outputs:
+    * This layer should output a 7x7 pooled feature map.
+- A flattening layer
+  + Arguments:
+    * This layer should take, as an input, the 7x7 pooled feature map produced by the previous layer.
+  + Output:
+    * This layer should output a vector of 49 values; these values should be "flattened" in the sense that they are no longer structured as a 2-dimensional array, but simply as a vector of 49 individual numeric values.
+- A dense (AKA "fully-connected" or "hidden") layer
+  + Arguments:
+    * This layer should contain 49 nodes (one for each value it will take as an input);
+    * This layer should process these values using the "relu" activation function. (The ReLU, or rectified linear unit, function is a popular function in neural networks; it changes negative values to 0, which speeds up computation time and introduces non-linearity into the network.)
+  + Output:
+    * This layer should output a vector of 49 numeric values (one for each node).
+- An output layer: a dense layer that generates an output value
+  + Arguments:
+    * This layer should contain one single node;
+    * This layer should use a "sigmoid" activation function to transform its inputs into a single value between 0 and 1.
+  + Output:
+    * This layer should output a single value bounded between 0 and 1; this is the predicted probability that an image depicts a top.
+
+> `layer_conv_2d()` creates a convolutional layer.
+
+> `layer_max_pooling_2d()` creates a max-pooling layer.
+
+> `layer_flatten()` creates a flattening layer.
+
+> `layer_dense()` creates a dense layer.
+
+```{r structure-a-neural-network}
+# structure the neural network
+net <- keras_model_sequential() %>%
+  layer_conv_2d(input_shape = c(28, 28, 1), filters = 1, kernel_size = c(15, 15)) %>%
+  layer_max_pooling_2d(pool_size = c(2, 2)) %>%
+  layer_flatten() %>%
+  layer_dense(units = 49, activation = "relu") %>%
+  layer_dense(units = 1, activation = "sigmoid")
+```
+
+---
+
+# 7. Compile the Network
+
+Compile the network that you created in the previous step.
+
+`net %>% compile(...)`
+
+The compile function should take the following arguments:
+
+- The compiler should use the "adam" optimizer;
+- The compiler should use the "binary_crossentropy" loss function;
+- The compiler should use the "accuracy" metric.
+
+> `compile()` is a function that takes the following arguments:
+
+> - `optimizer`: This is the optimizer that the network will use to update its weights.
+> - `loss`: This is the loss function that the network will use to evaluate its performance.
+> - `metrics`: This is the metric that the network will use to evaluate its performance.
+
+```{r compile-the-network}
+# compile the network
+net %>% compile(optimizer = "adam", loss = "binary_crossentropy", metrics = "accuracy")
+```
+
+---
+
+# 8. Train the Network
+
+Train your neural network on the images and class labels for the training data set. 
+
+`net %>% fit(...)`
+
+> `fit()` is a function that takes the following arguments:
+
+> - `x`: This is the input data that the network will use to train itself.
+> - `y`: This is the output data that the network will use to train itself.
+> - `epochs`: This is the number of times that the network will train itself on the entire training data set.
+
+```{r train-the-network}
+# train the network
+net %>% fit(train_images, train_labels, epochs = 7)
+```
+
+---
+
+# 9. Test the Network
+
+Find the accuracy of your neural network in both the testing and the training data.
+
+`net %>% evaluate(...)`
+
+What percentage of the training images does your neural network classify correctly? What percentage of the testing images does your neural network classify correctly?
+
+> `evaluate()` is a function that takes the following arguments:
+
+> - `x`: This is the input data that the network will use to test itself.
+> - `y`: This is the output data that the network will use to test itself.
+
+```{r test-the-network}
+# test the network
+net %>% evaluate(test_images, test_labels)
+net %>% evaluate(train_images, train_labels)
+```
+
+***The neural network can correctly classify 90.67% and 91.44% of the images from testing and training data sets respectively. (percentages may vary after knit-to-pdf)***
+
+---
