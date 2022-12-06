@@ -24,5 +24,8 @@ data <- dataset_fashion_mnist()
 ```
 
 ```{r create-graph}
+summary(data)
 
+dim(data$train$y)
+head(data$train$y)
 ```
