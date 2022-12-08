@@ -11,3 +11,25 @@ output:
     df_print: paged
 ---
 
+# 1. Load data
+
+This dataset contains information about tweets made by Elon Musk in 2022, including, besides the tweets, its number of likes, retweets and creation date.
+
+- Tweets: original text of the tweet.
+- Retweets: number of retweets of the current tweet.
+- Likes: number of likes of the current tweet.
+- Date: date of creation of the tweet.
+- Cleaned_tweets: text of the tweet after removing 'RT', hashtags, hyperlinks, mentions, emojis, leading and trailing whitespaces.
+
+```{r load-data}
+# load the data
+tweets <- read.csv("https://raw.githubusercontent.com/MartaCasdelg/Python-Projects/main/Sentiment%20Analysis%20of%20Elon%20Musk%20Tweets/cleandata.csv", header = TRUE, sep = ",")
+```
+
+# 2. Data exploration
+
+## 2.1. Sentiment Analysis
+
+```{r sentiment-analysis}
+
+```
