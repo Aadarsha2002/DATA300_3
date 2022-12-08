@@ -25,12 +25,14 @@ Note: Windows machines may experience an OpenSSL error when attempting to instal
 > `library()` imports the packages into the R session.
 
 ```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
 library(reticulate)
 library(tensorflow)
 library(keras)
 #install_tensorflow()
 #install_keras()
-#it kinda works when I run the install commands in the console, but when knitting, I need to comment them out, else I run out of memory
+#it kinda works when I run the install commands in the console, but when
+#knitting, I need to comment them out, else I run out of memory
 ```
 
 ---
@@ -46,7 +48,7 @@ Load the Fashion-MNEST data set using the function `dataset_fashion_mnest()`. St
 > - `x_test`: test data
 > - `y_test`: test labels
 
-```{r load-the-dataset}
+```{r load-the-dataset, echo=TRUE}
 # load the data set
 fashion_mnist <- dataset_fashion_mnist()
 ```
@@ -64,7 +66,7 @@ Using the data set that you loaded in the previous question, create four objects
 
 Hint: use the dollar sign operator to select individual components of the Fashion-MNEST data set.
 
-```{r format-the-dataset}
+```{r format-the-dataset, echo=TRUE}
 # format the data set
 train_images <- fashion_mnist$train$x
 train_labels <- fashion_mnist$train$y
@@ -83,7 +85,7 @@ When you are finished, you should have two objects:
 - Training class labels, containing 60,000 instances of either 0 or 1;
 - Testing class labels, containing 10,000 instances of either 0 or 1.
 
-```{r recode-class-labels}
+```{r recode-class-labels, echo=TRUE}
 # recode the class labels
 train_labels <- ifelse(train_labels %in% c(0, 1, 2, 3, 4, 5), 1, 0)
 test_labels <- ifelse(test_labels %in% c(0, 1, 2, 3, 4, 5), 1, 0)
@@ -97,7 +99,7 @@ The pixel brightness values are stored as numeric values between 0 and 255. Re-s
 
 Hint: you can accomplish this by dividing every value by 255.
 
-```{r pre-process-pixel-values}
+```{r pre-process-pixel-values, echo=TRUE}
 # pre-process the pixel values
 train_images <- train_images / 255
 test_images <- test_images / 255
@@ -161,7 +163,7 @@ Create a network structure containing the following layers:
 
 > `layer_dense()` creates a dense layer.
 
-```{r structure-a-neural-network}
+```{r structure-a-neural-network, echo=TRUE}
 # structure the neural network
 net <- keras_model_sequential() %>%
   layer_conv_2d(input_shape = c(28, 28, 1), filters = 1, kernel_size = c(15, 15)) %>%
@@ -191,7 +193,7 @@ The compile function should take the following arguments:
 > - `loss`: This is the loss function that the network will use to evaluate its performance.
 > - `metrics`: This is the metric that the network will use to evaluate its performance.
 
-```{r compile-the-network}
+```{r compile-the-network, echo=TRUE}
 # compile the network
 net %>% compile(optimizer = "adam", loss = "binary_crossentropy", metrics = "accuracy")
 ```
@@ -210,7 +212,7 @@ Train your neural network on the images and class labels for the training data s
 > - `y`: This is the output data that the network will use to train itself.
 > - `epochs`: This is the number of times that the network will train itself on the entire training data set.
 
-```{r train-the-network}
+```{r train-the-network, echo=TRUE}
 # train the network
 net %>% fit(train_images, train_labels, epochs = 7)
 ```
@@ -230,7 +232,7 @@ What percentage of the training images does your neural network classify correct
 > - `x`: This is the input data that the network will use to test itself.
 > - `y`: This is the output data that the network will use to test itself.
 
-```{r test-the-network}
+```{r test-the-network, echo=TRUE}
 # test the network
 net %>% evaluate(test_images, test_labels)
 net %>% evaluate(train_images, train_labels)
